@@ -231,6 +231,9 @@ class AWSProductPricing:
         for v in term['priceDimensions'].values():
             self._tiers.append(AWSProductPriceTier(v))
 
+        # Sort tier prices on the begin range value...
+        self._tiers.sort(key=lambda t: t.begin_range)
+
 
 class AWSProductPriceTier:
     """Represent one AWS product's price tier"""
