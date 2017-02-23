@@ -166,7 +166,7 @@ class AWSProduct:
 
     @property
     def pricing(self):
-        """Product's pricing information as i list of AWSProductPricing objects
+        """Product's pricing information as a list of AWSProductPricing objects
         """
         return self._pricing
 
@@ -210,6 +210,36 @@ class AWSProductPricing:
     def tiers(self):
         """Return product prices as a list of AWSProductPriceTier objects"""
         return self._tiers
+
+    def get_price(self, amount):
+        """Calculate the price for the given amount.
+
+        The value of amount is assumed to be in the correct units.
+        """
+        price = 0
+
+        # Iterate over price tiers...
+        for t in self._tiers:
+            if amount > t.end_range:
+                price += t.price * (t.end_range - t.begin_range)
+            else:
+                price += t.price * (amount - t.begin_range)
+                break
+
+        return price
+
+    @property
+    def price_unit(self):
+        """Get the unit of the price tiers.
+
+        Assumption is there is only one unit value. Exception thrown if tiers
+        have different units.
+        """
+        unit = set(t.unit for t in self._tiers)
+        if len(unit) != 1:
+            raise ValueError('More than one unit for price tiers')
+        else:
+            return unit.pop()
 
     def __init__(self, term):
         if not isinstance(term, dict):
