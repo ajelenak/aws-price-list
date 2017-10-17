@@ -133,10 +133,15 @@ class AWSOffer:
                 '%s: Unsupported format for publicationDate' % pbd)
 
     def product(self, sku, term_type='OnDemand'):
-        """Return AWS produt information as AWSProduct object"""
+        """Return AWS product information as AWSProduct object"""
         # Sanity check...
         if sku != self._offr['products'][sku]['sku']:
             raise ValueError('Product SKU mismatch')
+        try:
+            self._offr['terms'][term_type][sku]
+        except KeyError:
+            raise ValueError('No {} term info for SKU {}'.format(term_type,
+                                                                 sku))
         return AWSProduct(self._offr['products'][sku],
                           self._offr['terms'][term_type][sku], term_type)
 
